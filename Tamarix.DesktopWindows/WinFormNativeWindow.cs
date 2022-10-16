@@ -400,8 +400,8 @@ namespace Tamarix.DesktopWindows
         /// Sometimes it is smoother to use hardware resizing window, but less stabble and wobbly
         /// </summary>
         public static bool UseHardwareResizing = false;
-        Tamarix.Window window;
-        public WinFormNativeWindow(Tamarix.Window window)
+        Window window;
+        public WinFormNativeWindow(Window window)
         {
             this.window = window;
             this.AssignHandle(window._window.Native.Win32.Value.Hwnd);

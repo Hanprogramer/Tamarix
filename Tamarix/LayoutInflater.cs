@@ -16,6 +16,17 @@ namespace Tamarix
             throw new Exception($"Can't inflate: {name}");
         }
 
+        private string? getAttrOrNull(XmlNode node, string attrName)
+        {
+            if (node.Attributes == null)
+                return null;
+            var item = node.Attributes.GetNamedItem(attrName);
+            if (item == null)
+                return null;
+
+            return item.Value;
+        }
+
         /// <summary>
         /// Parses attributes to check is it resource or not
         /// </summary>
@@ -67,7 +78,7 @@ namespace Tamarix
                 return null;
             if (node.NodeType == XmlNodeType.Document)
                 return _inflate(node.FirstChild!);
-
+            string? id = getAttrOrNull(node, "Id");
             //Console.WriteLine($"{{{node.NodeType}}}<{node.Name}>");
 
             View? view = null;
@@ -129,7 +140,7 @@ namespace Tamarix
 
             if (view == null)
                 throw new Exception($"Unknown XML node: {node.Name}");
-
+            view.Id = id;
 
 
             // If can has child

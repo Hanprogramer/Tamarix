@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>enable</Nullable>
+	<TargetFrameworks>net6.0;net6.0-windows</TargetFrameworks>
+	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<None Remove="icons\close.svg" />
+	<None Remove="icons\maximize.svg" />
+	<None Remove="icons\minimize.svg" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<EmbeddedResource Include="icons\close.svg" />
+	<EmbeddedResource Include="icons\maximize.svg" />
+	<EmbeddedResource Include="icons\minimize.svg" />
+  </ItemGroup>
+
+	<ItemGroup>
+	<PackageReference Include="Silk.NET" Version="2.15.0" />
+	<PackageReference Include="Silk.NET.Windowing.Extensions" Version="2.15.0" />
+	<PackageReference Include="SkiaSharp" Version="2.88.0-preview.266" />
+	<PackageReference Include="StbImageSharp" Version="2.27.8" />
+	<PackageReference Include="Svg.Skia" Version="0.5.13" />
+  </ItemGroup>
+
+</Project>

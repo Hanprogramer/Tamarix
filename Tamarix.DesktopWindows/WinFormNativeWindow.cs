@@ -410,7 +410,7 @@ namespace Tamarix.DesktopWindows
 
         private void _window_Load()
         {
-            Console.WriteLine("Extending to client area");
+            //Console.WriteLine("Extending to client area");
 
             var v = 2;
             DwmSetWindowAttribute(this.Handle, (DWMWINDOWATTRIBUTE)2, ref v, 4);

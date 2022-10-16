@@ -2,7 +2,7 @@
 {
     public class ClickableView : SingleChildContainer
     {
-        event Action? Click;
+        public event Action? Click;
         public ClickableView(View? child = null, Action? OnClick = null) : base(child)
         {
             if (OnClick != null)

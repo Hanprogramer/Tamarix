@@ -92,7 +92,7 @@ namespace Tamarix.Views
             if (!Child?.IsContaining(evt.x, evt.y) ?? false) return;
             Child?.OnMouseButton(ref evt, button, pressed);
         }
-        
+
         public override bool IsChildrenContaining(int x, int y)
         {
             if (Child is Container)
@@ -103,8 +103,9 @@ namespace Tamarix.Views
 
         public override void OnKeyDown(ref UIEvent evt)
         {
-            if(evt.Handled) return;
-            if(Child != null){
+            if (evt.Handled) return;
+            if (Child != null)
+            {
                 Child.OnKeyDown(ref evt);
             }
             base.OnKeyDown(ref evt);
@@ -113,7 +114,8 @@ namespace Tamarix.Views
         public override void OnKeyUp(ref UIEvent evt)
         {
             if (evt.Handled) return;
-            if (Child != null) {
+            if (Child != null)
+            {
                 Child.OnKeyUp(ref evt);
             }
             base.OnKeyUp(ref evt);
@@ -127,6 +129,21 @@ namespace Tamarix.Views
                 Child.OnKeyChar(ref evt);
             }
             base.OnKeyChar(ref evt);
+        }
+
+        public override View? FindView(string id)
+        {
+            if (id == Id)
+                return this;
+            if (Child != null)
+            {
+                if(Child.Id == id)
+                    return Child;
+                if (Child is Container c)
+                    return c.FindView(id);
+            }
+
+            return null;
         }
     }
 }

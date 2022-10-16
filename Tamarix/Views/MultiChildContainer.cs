@@ -188,5 +188,23 @@ namespace Tamarix.Views
                 child.OnKeyChar(ref evt);
             }
         }
+
+        public override View? FindView(string id)
+        {
+            if (id == Id)
+                return this;
+            foreach (var child in Children.Reverse<View>())
+            {
+                if (child.Id == id)
+                    return child;
+                if (child is Container c)
+                {
+                    var result = c.FindView(id);
+                    if (result != null)
+                        return result;
+                }
+            }
+            return null;
+        }
     }
 }

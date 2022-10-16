@@ -9,6 +9,7 @@ namespace Tamarix.Views
 
         public abstract override void Dispose();
         public abstract bool IsChildrenContaining(int x, int y);
+        public abstract View? FindView(string id);
 
     }
 }

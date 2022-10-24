@@ -3,8 +3,10 @@ using Silk.NET.GLFW;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
+using Silk.NET.SDL;
 using Silk.NET.Windowing;
 using SkiaSharp;
+using Tamarix.Inspector;
 using Tamarix.Views;
 using Dialog = Tamarix.Views.Dialog;
 using MouseButton = Tamarix.Views.MouseButton;
@@ -16,6 +18,10 @@ namespace Tamarix
 
         public static Window? Current;
         public DialogContainerStack DialogContainer;
+        public TWindowManager? WindowManager;
+        public TamarixApp App;
+        /* WOYY LANJUTIN F5 show /hide inspector*/
+        public Window? inspectorWindow;
         public bool HasCustomTitleBar { get; set; }
         public View TitleBar;
         public bool IsClosed { get; set; } = false;
@@ -23,6 +29,8 @@ namespace Tamarix
         /// Title of the window (desktop only)
         /// </summary>
         public string Title { get; set; }
+        public string? Icon { get; }
+        public IView? SilkView { get; }
 
         /// <summary>
         /// Internal Silk.NET window implementation
@@ -79,47 +87,12 @@ namespace Tamarix
         public Window(string title, int width, int height, string? icon = null, IView? view = null, bool isAndroid = false)
         {
             this.Title = title;
+            Icon = icon;
+            SilkView = view;
             this.Width = width;
             this.Height = height;
             IsAndroid = isAndroid;
-            if (!isAndroid)
-            {
-                Silk.NET.Windowing.Glfw.GlfwWindowing.Use(); 
-                var opts = WindowOptions.Default;
-                opts.Title = title;
-                opts.Size = new Silk.NET.Maths.Vector2D<int>(width, height);
-                opts.IsVisible = true;
-
-                if (view == null)
-                    _window = win.GetWindowPlatform(false)!.CreateWindow(opts);
-                
-                else
-                    _window = view;
-                _window.Load += Initialize;
-                _window.Closing += Dispose;
-                _window.Render += (delta) => { if (!_window.IsClosing) Render(delta); };
-                _window.Update += Update;
-                _window.FramebufferResize += Resize;
-                _window.Resize += Resize;
-                _window.Initialize();
-                
-
-                _input = _window.CreateInput();
-                for (var i = 0; i < _input.Keyboards.Count; i++)
-                {
-                    _input.Keyboards[i].KeyDown += Window_KeyDown;
-                    _input.Keyboards[i].KeyUp += Window_KeyUp;
-                    _input.Keyboards[i].KeyChar += Window_KeyChar; 
-                }
-                for (var i = 0; i < _input.Mice.Count; i++)
-                {
-                    _input.Mice[i].MouseUp += Window_MouseUp;
-                    _input.Mice[i].MouseDown += Window_MouseDown;
-                    _input.Mice[i].MouseMove += Window_MouseMove;
-                }
-
-                if (icon != null) LoadPNGIcon(icon);
-            }
+            _initialize();
         }
 
         private void Window_KeyChar(IKeyboard arg1, char arg2)
@@ -167,8 +140,27 @@ namespace Tamarix
 
         private void Window_KeyUp(IKeyboard arg1, Silk.NET.Input.Key arg2, int arg3)
         {
+#if DEBUG
+            // Toggle Debug Draw
             if (arg2 == Silk.NET.Input.Key.F3)
                 View.DrawDebug = !View.DrawDebug;
+            // Toggle Inspector Window
+            if (arg2 == Silk.NET.Input.Key.F5)
+            {
+                if (inspectorWindow != null)
+                {
+                    // Close inspector
+                    App.RemoveWindow(inspectorWindow);
+                    inspectorWindow = null;
+                }
+                else
+                {
+                    // Show inspector
+                    inspectorWindow = new InspectorWindow(this);
+                    App.AddWindow(inspectorWindow);
+                }
+            }
+#endif
             var evt = new UIEvent();
             evt.Key = (Key?)arg2;
             OnKeyUp(ref evt);
@@ -218,6 +210,51 @@ namespace Tamarix
                 (_window as IWindow)?.Center();
         }
 
+        public void _initialize()
+        {
+            if (!IsAndroid)
+            {
+                Silk.NET.Windowing.Glfw.GlfwWindowing.Use();
+                var opts = WindowOptions.Default;
+                opts.Title = Title;
+                opts.Size = new Silk.NET.Maths.Vector2D<int>(Width, Height);
+                opts.IsVisible = true;
+                
+                // IDK why but doing SwapBuffers() manually speeds up drawing
+                opts.IsContextControlDisabled = true;
+                opts.ShouldSwapAutomatically = false;
+                
+                if (SilkView == null)
+                    _window = win.GetWindowPlatform(false)!.CreateWindow(opts);
+                else
+                    _window = SilkView;
+                _window.Load += Initialize;
+                _window.Closing += Dispose;
+                _window.Render += (delta) => { if (!_window.IsClosing) Render(delta); };
+                _window.Update += Update;
+                _window.FramebufferResize += Resize;
+                _window.Resize += Resize;
+                _window.Initialize();
+
+
+                _input = _window.CreateInput();
+                for (var i = 0; i < _input.Keyboards.Count; i++)
+                {
+                    _input.Keyboards[i].KeyDown += Window_KeyDown;
+                    _input.Keyboards[i].KeyUp += Window_KeyUp;
+                    _input.Keyboards[i].KeyChar += Window_KeyChar;
+                }
+                for (var i = 0; i < _input.Mice.Count; i++)
+                {
+                    _input.Mice[i].MouseUp += Window_MouseUp;
+                    _input.Mice[i].MouseDown += Window_MouseDown;
+                    _input.Mice[i].MouseMove += Window_MouseMove;
+                }
+
+            }
+        }
+
+
         /// <summary>
         /// Initialize the window, preparing it's size context and rendering context
         /// </summary>
@@ -230,6 +267,7 @@ namespace Tamarix
             DialogContainer = new DialogContainerStack();
             AddChild(DialogContainer);
             UpdateChildPos();
+            if (Icon != null) LoadPNGIcon(Icon);
         }
 
         /// <summary>
@@ -247,11 +285,17 @@ namespace Tamarix
         /// <param name="surface"></param>
         public void RenderOn(SKSurface surface)
         {
+            // This should not be needed on android
+            //_window.GLContext?.MakeCurrent();
+
             var ctx = surface.Canvas;
             ctx.DrawColor(BackgroundColor?.SkColor ?? Theme.Current.BackgroundColor.SkColor);
             OnDraw(ctx);
             RenderChildren(ctx);
             //ctx.DrawRect(0, 0, 50, 50, new SKPaint() { Color=SKColors.Red});
+
+            // This should not be needed on android
+            //_window.SwapBuffers();
         }
 
         /// <summary>
@@ -260,6 +304,7 @@ namespace Tamarix
         /// <param name="deltaTime">Time since last frame</param>
         public void Render(double deltaTime)
         {
+            _window.GLContext?.MakeCurrent();
             Current = this;
             if (SkiaCtx == null) return;
             var ctx = Surface?.Canvas;
@@ -267,6 +312,7 @@ namespace Tamarix
             OnDraw(ctx!);
             RenderChildren(ctx!);
             SkiaCtx.Flush();
+            _window.SwapBuffers();
         }
 
         /// <summary>
@@ -315,7 +361,7 @@ namespace Tamarix
             Resize(size.X, size.Y);
         }
 
-        void SkiaInit()
+        public void SkiaInit()
         {
             if (SkiaCtx == null && !IsAndroid)
             {
@@ -363,7 +409,6 @@ namespace Tamarix
                 default:
                     newCursor = StandardCursor.Arrow;
                     throw new Exception("Cursor not implemented yet");
-                    break;
             }
             if (_window != null && _window is IWindow)
             {
@@ -453,6 +498,7 @@ namespace Tamarix
         {
             Children.Clear();
             Children.Add(view);
+            UpdateChildPos();
         }
 
         /// <summary>

@@ -24,7 +24,16 @@ namespace Tamarix
 
         public void AddWindow(Window window)
         {
+            window.WindowManager = WindowManager;
+            window.App = this;
             WindowManager.AddWindow((window._window as IWindow)!);
+        }
+
+        public void RemoveWindow(Window window)
+        {
+            window.WindowManager = null;
+            window.App = null;
+            WindowManager.RemoveWindow((window._window as IWindow)!);
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Tamarix.Views
             Color = Theme.Current.TitleBarColor.SkColor
         };
 
-        public TitleBar(Window window, Image icon, bool showTitle=true) : base(Orientation.Horizontal)
+        public TitleBar(Window window, Image icon, bool showTitle = true) : base(Orientation.Horizontal)
         {
             this.window = window;
             AddChild(new MenuButton(icon)
@@ -36,10 +36,10 @@ namespace Tamarix.Views
             AddMenu("Edit");
             AddMenu("Project");
             AddMenu("Help");
-            if(showTitle)
+            if (showTitle)
                 AddChild(new ClickThroughLabel(window.Title), 1);
             else
-                AddChild(new FlexChild(new Spacer(), 1));
+                AddFlexChild(new FlexChild(new Spacer(), 1));
 
             AddChild(new MenuButton(
                 Image.FromSVGStream(ResourceManager.GetAsset(typeof(TitleBar), "minimize.svg"), 8, 8),

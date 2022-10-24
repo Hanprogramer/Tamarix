@@ -1,6 +1,5 @@
 ﻿using SkiaSharp;
 using Svg.Skia;
-using System.IO;
 
 namespace Tamarix.Views
 {
@@ -73,7 +72,7 @@ namespace Tamarix.Views
     public interface IImageData
     {
         public void Load(string path);
-        public void Draw(SKCanvas canvas, int x, int y, int w, int h, SKPaint? paint=null);
+        public void Draw(SKCanvas canvas, int x, int y, int w, int h, SKPaint? paint = null);
         public void Dispose();
         public int Width { get; }
         public int Height { get; }
@@ -118,7 +117,7 @@ namespace Tamarix.Views
                 Math.Min(drawBounds.Width / boundingBox.Width,
                     drawBounds.Height / boundingBox.Height));
             canvas.Translate(-boundingBox.MidX, -boundingBox.MidY);
-        
+
             // Now finally draw the SVG image
             canvas.DrawPicture(svg.Picture, paint);
 

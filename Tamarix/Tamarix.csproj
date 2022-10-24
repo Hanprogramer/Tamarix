@@ -11,12 +11,14 @@
 	<None Remove="icons\close.svg" />
 	<None Remove="icons\maximize.svg" />
 	<None Remove="icons\minimize.svg" />
+	<None Remove="Inspector\InspectorWindow.xml" />
   </ItemGroup>
 
   <ItemGroup>
 	<EmbeddedResource Include="icons\close.svg" />
 	<EmbeddedResource Include="icons\maximize.svg" />
 	<EmbeddedResource Include="icons\minimize.svg" />
+	<EmbeddedResource Include="Inspector\InspectorWindow.xml" />
   </ItemGroup>
 
 	<ItemGroup>

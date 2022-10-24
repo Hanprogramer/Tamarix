@@ -16,6 +16,7 @@ namespace Tamarix.Views
         public virtual Margin Margin { get; set; }
         public bool IsFreeing = false;
         public string? Id;
+        public int Weight = 0;
         /// <summary>
         /// Get the width + padding, excluding margin
         /// </summary>

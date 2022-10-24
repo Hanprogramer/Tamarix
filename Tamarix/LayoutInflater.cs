@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Xml;
+﻿using System.Xml;
 using Tamarix.Views;
 namespace Tamarix
 {
@@ -79,6 +78,15 @@ namespace Tamarix
             if (node.NodeType == XmlNodeType.Document)
                 return _inflate(node.FirstChild!);
             string? id = getAttrOrNull(node, "Id");
+            string? weightAttr = getAttrOrNull(node, "Weight");
+            int weight = 0;
+            if (weightAttr != null)
+            {
+                if (!int.TryParse(weightAttr, out weight))
+                {
+                    throw new Exception($"Error parsing attribute Weight: {weightAttr}");
+                }
+            }
             //Console.WriteLine($"{{{node.NodeType}}}<{node.Name}>");
 
             View? view = null;
@@ -127,21 +135,73 @@ namespace Tamarix
 
 
                 case "LinearLayout":
-                    var orientation = Orientation.Horizontal; // default value
-                    if (node.Attributes != null)
                     {
-                        var _c = node.Attributes.GetNamedItem("Orientation");
-                        if (_c != null && _c.Value != null)
-                            orientation = (_c.Value == "Vertical") ? Orientation.Vertical : Orientation.Horizontal;
+                        var orientation = Orientation.Horizontal; // default value
+                        if (node.Attributes != null)
+                        {
+                            var _c = node.Attributes.GetNamedItem("Orientation");
+                            if (_c != null && _c.Value != null)
+                                orientation = (_c.Value == "Vertical") ? Orientation.Vertical : Orientation.Horizontal;
+
+
+                        }
+                        var mainAxisAlignStr = getAttrOrNull(node, "MainAxisAlignment");
+                        var crossAxisAlignStr = getAttrOrNull(node, "CrossAxisAlignment");
+                        var mainAxisAlign = Alignment.Center;
+                        var crossAxisAlign = Alignment.Center;
+                        if (mainAxisAlignStr == "Stretch")
+                            mainAxisAlign = Alignment.Stretch;
+                        else if (mainAxisAlignStr == "Begin")
+                            mainAxisAlign = Alignment.Begin;
+                        else if (mainAxisAlignStr == "End")
+                            mainAxisAlign = Alignment.End;
+
+                        if (crossAxisAlignStr == "Stretch")
+                            crossAxisAlign = Alignment.Stretch;
+                        else if (crossAxisAlignStr == "Begin")
+                            crossAxisAlign = Alignment.Begin;
+                        else if (crossAxisAlignStr == "End")
+                            crossAxisAlign = Alignment.End;
+                        view = new LinearLayout(orientation, null, mainAxisAlign, crossAxisAlign);
                     }
-                    view = new LinearLayout(orientation);
                     break;
+
+                case "Flex":
+                    {
+                        var orientation = Orientation.Horizontal; // default value
+                        if (node.Attributes != null)
+                        {
+                            var _c = node.Attributes.GetNamedItem("Orientation");
+                            if (_c != null && _c.Value != null)
+                                orientation = (_c.Value == "Vertical") ? Orientation.Vertical : Orientation.Horizontal;
+                        }
+                        view = new Flex(orientation);
+                    }
+                    break;
+
+                case "LoadingInfiniteIndicator":
+                    {
+                        view = new LoadingInfiniteIndicator();
+                    }
+                    break;
+
             }
 
             if (view == null)
                 throw new Exception($"Unknown XML node: {node.Name}");
             view.Id = id;
+            if (weightAttr != null)
+            {
+                // Automatically converts the view into a FlexChild
+                view = new FlexChild(view, weight);
+            }
 
+            AddChildToView(node, view);
+            return view;
+        }
+
+        private void AddChildToView(XmlNode node, View view)
+        {
 
             // If can has child
             if (node.ChildNodes.Count > 0)
@@ -157,22 +217,30 @@ namespace Tamarix
                     }
                 else if (view is SingleChildContainer scc)
                 {
-                    if (node.ChildNodes.Count > 1)
-                        throw new Exception($"Element <{node.Name}> is a single child container, can only contains one view");
-                    if (node.FirstChild == null)
-                        throw new Exception($"Tag <{node.Name}> doesn't have a child");
-                    var childView = _inflate(node.FirstChild);
-                    if (childView == null)
-                        throw new Exception($"Cannot inflate child of <{node.Name}>");
+                    // FlexChild have to be treated differently
+                    if (view is FlexChild f)
+                    {
+                        if (f.Child != null)
+                            AddChildToView(node, f.Child);
+                    }
+                    else
+                    {
+                        if (node.ChildNodes.Count > 1)
+                            throw new Exception($"Element <{node.Name}> is a single child container, can only contains one view");
+                        if (node.FirstChild == null)
+                            throw new Exception($"Tag <{node.Name}> doesn't have a child");
+                        var childView = _inflate(node.FirstChild);
+                        if (childView == null)
+                            throw new Exception($"Cannot inflate child of <{node.Name}>");
 
-                    scc.Child = childView;
+                        scc.Child = childView;
+                    }
                 }
                 else
                 {
                     throw new Exception($"Element <{node.Name}> is not a container, thus can't contain any children");
                 }
             }
-            return view;
         }
     }
 }

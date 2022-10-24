@@ -137,7 +137,7 @@ namespace Tamarix.Views
                 return this;
             if (Child != null)
             {
-                if(Child.Id == id)
+                if (Child.Id == id)
                     return Child;
                 if (Child is Container c)
                     return c.FindView(id);

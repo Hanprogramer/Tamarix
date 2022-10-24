@@ -12,7 +12,7 @@
             bool cancelable = true,
             Dialog.OnClickShadeEvent? onClickShadeEvent = null)
         {
-            var dlg = new Dialog(containerStack, onClickShade:onClickShadeEvent);
+            var dlg = new Dialog(containerStack, onClickShade: onClickShadeEvent);
 
             var actionBar = new LinearLayout(Orientation.Horizontal);
             if (positiveAction != null)
@@ -20,7 +20,7 @@
             if (negativeAction != null)
                 actionBar.AddChild(new Button(negativeAction) { Transparent = true });
             if (cancelAction != null && cancelable)
-                actionBar.AddChild(new Button(cancelAction, ()=>{ dlg.Close(); }) { Transparent = true });
+                actionBar.AddChild(new Button(cancelAction, () => { dlg.Close(); }) { Transparent = true });
 
 
             var content = new LinearLayout(Orientation.Vertical)

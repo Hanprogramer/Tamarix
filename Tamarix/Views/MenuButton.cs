@@ -13,8 +13,8 @@ namespace Tamarix.Views
         public Color? HoverColor { get; set; }
         public Color? ClickColor { get; set; }
         public int? RoundRadius { get; set; }
-        public override Margin Margin { get; set; } = new Margin(4,4,8,8);
-        public override Padding Padding { get; set; } = new Padding(10,10,16,16);
+        public override Margin Margin { get; set; } = new Margin(4, 4, 8, 8);
+        public override Padding Padding { get; set; } = new Padding(10, 10, 16, 16);
         public override MouseCursor? Cursor { get; set; } = MouseCursor.Arrow;
         public bool Transparent { get; set; } = false;
 

@@ -1,0 +1,9 @@
+﻿<Flex Orientation="Vertical">
+	<Label Text="Layout Inspector"/>
+	<!--Main Container of everything-->
+	<LinearLayout Orientation="Vertical" 
+				  Weight="1" 
+				  MainAxisAlignment="Begin" 
+				  CrossAxisAlignment="Stretch" 
+				  Id="InspectorMainLayout"/>
+</Flex>

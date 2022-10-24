@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Tamarix
+﻿namespace Tamarix
 {
     public class ResourceManager
     {
@@ -25,7 +23,7 @@ namespace Tamarix
         public static string ReadAssetFile(Type ResourceHolder, string name)
         {
             var stream = GetAsset(ResourceHolder, name);
-            if(stream == null)
+            if (stream == null)
             {
                 throw new Exception($"Could not read resource: {name}");
             }

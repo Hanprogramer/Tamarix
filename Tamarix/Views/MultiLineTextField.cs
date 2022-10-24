@@ -50,7 +50,7 @@ namespace Tamarix.Views
         private bool draggingEnd = true;
 
         // Animations
-        private float cX=0, cY=0, cXto, cYto;
+        private float cX = 0, cY = 0, cXto, cYto;
         private int cursorFadeTimer = 0, cursorFadeTime = 30;
         private bool blink = true;
 
@@ -74,11 +74,11 @@ namespace Tamarix.Views
         {
             base.Draw(canvas);
             canvas.Save();
-            SKRect rect = new SKRect(X - Padding.Left, Y - Padding.Top, X-Padding.Left+MeasuredWidth, Y-Padding.Top+MeasuredHeight);
+            SKRect rect = new SKRect(X - Padding.Left, Y - Padding.Top, X - Padding.Left + MeasuredWidth, Y - Padding.Top + MeasuredHeight);
             canvas.ClipRect(rect);
             SKRect letterSize = new SKRect();
             Paint.MeasureText("A", ref letterSize);
-            (Background ?? Theme.Current.TextFieldBackground).Draw(canvas, X-Padding.Left, Y-Padding.Top, MeasuredWidth, MeasuredHeight);
+            (Background ?? Theme.Current.TextFieldBackground).Draw(canvas, X - Padding.Left, Y - Padding.Top, MeasuredWidth, MeasuredHeight);
 
 
             float ypos = Y;
@@ -90,8 +90,8 @@ namespace Tamarix.Views
                     // Entire line is selected
                     canvas.DrawRect(
                         X + Padding.Left,
-                        ypos + Padding.Top  - cursorPadSize,
-                        Math.Max(Paint.MeasureText(value[i]),4),
+                        ypos + Padding.Top - cursorPadSize,
+                        Math.Max(Paint.MeasureText(value[i]), 4),
                         Paint.FontSpacing,
                         paint);
                 }
@@ -100,7 +100,7 @@ namespace Tamarix.Views
                     // Singe line select
                     canvas.DrawRect(
                         X + Padding.Left + Paint.MeasureText(value[i].Substring(0, SelectStart.Pos)),
-                        ypos + Padding.Top  - cursorPadSize,
+                        ypos + Padding.Top - cursorPadSize,
                         Paint.MeasureText(value[i].Substring(SelectStart.Pos, SelectEnd.Pos - SelectStart.Pos)),
                         Paint.FontSpacing,
                         paint);
@@ -112,8 +112,8 @@ namespace Tamarix.Views
                         // Starting select line
                         canvas.DrawRect(
                             X + Padding.Left + Paint.MeasureText(value[i].Substring(0, SelectStart.Pos)),
-                            ypos + Padding.Top  - cursorPadSize,
-                            Math.Max(4,Paint.MeasureText(value[i].Substring(SelectStart.Pos))),
+                            ypos + Padding.Top - cursorPadSize,
+                            Math.Max(4, Paint.MeasureText(value[i].Substring(SelectStart.Pos))),
                         Paint.FontSpacing,
                             paint);
                     }
@@ -123,7 +123,7 @@ namespace Tamarix.Views
                         canvas.DrawRect(
                             X + Padding.Left,
                             ypos + Padding.Top - cursorPadSize,
-                            Math.Max(4,Paint.MeasureText(value[i].Substring(0, SelectEnd.Pos))),
+                            Math.Max(4, Paint.MeasureText(value[i].Substring(0, SelectEnd.Pos))),
                             Paint.FontSpacing,
                             paint);
                     }
@@ -146,7 +146,7 @@ namespace Tamarix.Views
                         X + Padding.Left + cX,
                         Y + Padding.Top + cY - cursorPadSize,
                         1,
-                        letterSize.Height + cursorPadSize*2,
+                        letterSize.Height + cursorPadSize * 2,
                         Paint);
                 }
 
@@ -226,11 +226,11 @@ namespace Tamarix.Views
             }
 
             // End of file
-            if(ypos < y)
+            if (ypos < y)
             {
-                lineNum = value.Count-1;
+                lineNum = value.Count - 1;
                 posNum = value[lineNum].Length;
-                xpos =  X + Padding.Left; 
+                xpos = X + Padding.Left;
                 for (int letter = 0; letter < value[lineNum].Length; letter++)
                 {
                     var letterChar = value[lineNum][letter];
@@ -363,14 +363,14 @@ namespace Tamarix.Views
             cY += (cYto - cY) / 2.0f;
 
             cursorFadeTimer++;
-            if(cursorFadeTimer >= cursorFadeTime)
+            if (cursorFadeTimer >= cursorFadeTime)
             {
                 cursorFadeTimer = 0;
                 blink = !blink;
             }
 
-            if(Window.Current != null)
-            IsActive = Window.Current!.CurrentViewFocus == this;
+            if (Window.Current != null)
+                IsActive = Window.Current!.CurrentViewFocus == this;
         }
 
         public void RemoveTextOnSelection()
@@ -382,7 +382,7 @@ namespace Tamarix.Views
                     // Clears whatever in selection
                     var newStart = value[SelectStart.Line].Remove(SelectStart.Pos);
                     var newEnd = value[SelectEnd.Line].Remove(0, SelectEnd.Pos);
-                    for (var l = SelectStart.Line+1; l <= SelectEnd.Line; l++)
+                    for (var l = SelectStart.Line + 1; l <= SelectEnd.Line; l++)
                     {
                         value.RemoveAt(SelectStart.Line + 1);
                     }

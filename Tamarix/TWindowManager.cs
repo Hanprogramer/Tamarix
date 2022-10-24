@@ -19,6 +19,7 @@ namespace Tamarix
         /// Gets or sets a value indicating whether this manager's render loop is active.
         /// </summary>
         public bool IsRunning { get; set; }
+        public List<IWindow> removals { get; private set; }
 
         /// <summary>
         /// Gets the IWindow with a context current on this thread.
@@ -34,7 +35,14 @@ namespace Tamarix
         /// Adds a IWindow to this manager.
         /// </summary>
         /// <param name="IWindow">The IWindow to add.</param>
-        public void AddWindow(IWindow IWindow) { lock (_syncRoot) { Windows.Add(IWindow); } }
+        public void AddWindow(IWindow IWindow)
+        {
+            lock (_syncRoot)
+            {
+                Windows.Add(IWindow);
+
+            }
+        }
 
         /// <summary>
         /// Removes the given IWindow from this manager.
@@ -44,7 +52,15 @@ namespace Tamarix
         /// Whether the removal was successful or not. One reason why this might return false is that the given IWindow
         /// isn't being managed by this manager.
         /// </returns>
-        public bool RemoveWindow(IWindow IWindow) { lock (_syncRoot) { return Windows.Remove(IWindow); } }
+        public bool RemoveWindow(IWindow win)
+        {
+            lock (_syncRoot)
+            {
+                //TODO: remove the window manager from the Tamarix window
+                //win.WindowManager = null;
+                return Windows.Remove(win);
+            }
+        }
 
         /// <summary>
         /// Executes a render loop encompassing all windows within this manager.
@@ -64,13 +80,14 @@ namespace Tamarix
                 }
             }
 
-            var removals = new List<IWindow>();
+            removals = new List<IWindow>();
             while (IsRunning)
             {
                 lock (_syncRoot)
                 {
-                    foreach (var IWindow in Windows)
+                    for (int i = 0; i < Windows.Count; i++)
                     {
+                        var IWindow = Windows.ElementAt(i);
                         //Console.WriteLine($"{IWindow.Title} : {IWindow.IsClosing}");
                         if (IWindow.IsClosing)
                         {
@@ -92,13 +109,6 @@ namespace Tamarix
                         IWindow.DoEvents();
                         IWindow.DoUpdate();
                         IWindow.DoRender();
-
-                        //Console.Write("[");
-                        //for(var i = 0; i < Windows.Count; i++)
-                        //{
-                        //    Console.Write($"'{Windows.ElementAt(i).Title}',");
-                        //}
-                        //Console.Write("]\n");
 
                     }
 

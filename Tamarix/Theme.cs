@@ -52,13 +52,13 @@
             ForegroundColorActive = new Color(35, 35, 35, 200),//new Color(0,0,255,50),//
             TextColor = Colors.White,
             AccentColor = new Color(16, 194, 116),
-            AccentColorInactive = new Color(116,116,116),
+            AccentColorInactive = new Color(116, 116, 116),
             AccentColorDarker = new Color(6, 125, 73),
 
             MenuButtonColor = new Color(69, 69, 69),
             MenuButtonColorActive = new Color(59, 59, 59),
             DialogBackground = new StyleBox(
-               fillBrush: new SolidColorBrush(new Color(39,39,39)),
+               fillBrush: new SolidColorBrush(new Color(39, 39, 39)),
                borderRadius: 8
             ),
             DialogShadeColor = new Color(0, 0, 0, 100),
@@ -67,7 +67,7 @@
             //ButtonBackground = new GradientColorBrush(new Color[] { new Color(0xFFFF7547), new Color(0xFFD70064) }, null),
             ButtonBackground = new SolidColorBrush(new Color(69, 69, 69)),
             TextFieldBackground = new StyleBox(
-                fillBrush: new SolidColorBrush(new Color(30,30,30))
+                fillBrush: new SolidColorBrush(new Color(30, 30, 30))
             ),
             DefaultFontSize = 18,
             ButtonRounding = 4

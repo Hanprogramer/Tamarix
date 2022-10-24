@@ -11,10 +11,13 @@
 
         public void AddChild(View view, float weight = 1)
         {
-            Children.Add(new FlexChild(view, weight));
+            if (view is FlexChild f)
+                AddFlexChild(f);
+            else
+                AddFlexChild(new FlexChild(view, weight));
         }
 
-        public void AddChild(FlexChild view)
+        public void AddFlexChild(FlexChild view)
         {
             Children.Add(view);
         }
@@ -86,7 +89,11 @@
 
         public override void AddChild(View child, bool dontUpdateChildPos = false)
         {
-            throw new Exception("Can't add regular View to Flex, use FlexChild instead");
+            //throw new Exception("Can't add regular View to Flex, use FlexChild instead");
+            if (child is FlexChild f)
+                AddFlexChild(f);
+            else
+                AddChild(child, 0);
         }
 
         public override void RemoveChild(View child)
@@ -106,7 +113,7 @@
     }
     public class FlexChild : SingleChildContainer, IFlexContent
     {
-        public float Weight { get; set; } = 1;
+        public float Weight { get; set; } = 0;
         public override int Width { get => Child.Width; set => Child.Width = value; }
         public override int Height { get => Child.Height; set => Child.Height = value; }
         public override Padding Padding { get => Child.Padding; set => Child.Padding = value; }

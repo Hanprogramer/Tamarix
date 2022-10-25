@@ -88,27 +88,9 @@ namespace Tamarix
                     for (int i = 0; i < Windows.Count; i++)
                     {
                         var IWindow = Windows.ElementAt(i);
-                        //Console.WriteLine($"{IWindow.Title} : {IWindow.IsClosing}");
                         if (IWindow.IsClosing)
-                        {
                             removals.Add(IWindow);
-                        }
-
-                        if (IWindow.API.API == ContextAPI.OpenGL || IWindow.API.API == ContextAPI.OpenGLES)
-                        {
-                            try
-                            {
-                                IWindow.MakeCurrent();
-                            }
-                            catch (GlfwException e)
-                            {
-                                Console.WriteLine($"GlfwException[handle: {IWindow.Handle}]: {e.Message}");
-                                continue;
-                            }
-                        }
                         IWindow.DoEvents();
-                        IWindow.DoUpdate();
-                        IWindow.DoRender();
 
                     }
 

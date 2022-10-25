@@ -1,4 +1,5 @@
 using Silk.NET.Core;
+using Silk.NET.Core.Contexts;
 using Silk.NET.GLFW;
 using Silk.NET.Input;
 using Silk.NET.Maths;
@@ -31,6 +32,7 @@ namespace Tamarix
         public string Title { get; set; }
         public string? Icon { get; }
         public IView? SilkView { get; }
+        public bool isRunning { get; private set; }
 
         /// <summary>
         /// Internal Silk.NET window implementation
@@ -219,11 +221,10 @@ namespace Tamarix
                 opts.Title = Title;
                 opts.Size = new Silk.NET.Maths.Vector2D<int>(Width, Height);
                 opts.IsVisible = true;
-                
-                // IDK why but doing SwapBuffers() manually speeds up drawing
+
                 opts.IsContextControlDisabled = true;
                 opts.ShouldSwapAutomatically = false;
-                
+
                 if (SilkView == null)
                     _window = win.GetWindowPlatform(false)!.CreateWindow(opts);
                 else
@@ -268,6 +269,24 @@ namespace Tamarix
             AddChild(DialogContainer);
             UpdateChildPos();
             if (Icon != null) LoadPNGIcon(Icon);
+
+            context = _window.GLContext;
+            context?.Clear();
+            new System.Threading.Thread(RenderLoop).Start();
+            isRunning = true;
+        }
+
+        void RenderLoop()
+        {
+            context?.MakeCurrent();
+            SkiaInit();
+            while (isRunning)
+            {
+                _window.DoUpdate();
+                _window.DoRender();
+                if (_window.IsClosing)
+                    isRunning = false;
+            }
         }
 
         /// <summary>
@@ -304,14 +323,21 @@ namespace Tamarix
         /// <param name="deltaTime">Time since last frame</param>
         public void Render(double deltaTime)
         {
-            _window.GLContext?.MakeCurrent();
+
+            // Skia stuffs
             Current = this;
-            if (SkiaCtx == null) return;
-            var ctx = Surface?.Canvas;
-            ctx!.DrawColor(BackgroundColor?.SkColor ?? Theme.Current.BackgroundColor.SkColor);
-            OnDraw(ctx!);
-            RenderChildren(ctx!);
-            SkiaCtx.Flush();
+            lock (canvasLocker)
+            {
+                if (SkiaCtx == null || Surface == null) return;
+                var ctx = Surface?.Canvas;
+                if (ctx != null)
+                {
+                    ctx.DrawColor(BackgroundColor?.SkColor ?? Theme.Current.BackgroundColor.SkColor);
+                    OnDraw(ctx);
+                    RenderChildren(ctx);
+                }
+                SkiaCtx.Flush();
+            }
             _window.SwapBuffers();
         }
 
@@ -350,10 +376,6 @@ namespace Tamarix
             Height = height;
             SkiaResize(width, height);
             UpdateChildPos();
-
-            // Fix window resizing pausing render
-            _window.DoUpdate();
-            _window.DoRender();
         }
 
         public void Resize(Vector2D<int> size)
@@ -375,20 +397,30 @@ namespace Tamarix
         }
 
         GRGlFramebufferInfo fbi = new(0, (uint)InternalFormat.Rgba8);
+        private IGLContext? context;
+        private object canvasLocker = new object();
+
         public void SkiaResize(int w, int h)
         {
             if (!IsAndroid)
             {
-                if (SkiaCtx == null) SkiaInit();
-                var beRenderTarget = new GRBackendRenderTarget(w, h, 0, 0, fbi);
 
-                // Recreate the window surface
-                Surface?.Dispose();
-                Surface = SKSurface.Create(SkiaCtx, beRenderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888, null, null);
-                if (Surface == null)
+                if (SkiaCtx == null) SkiaInit();
+                SKSurface? old = Surface;
+                lock (canvasLocker)
                 {
-                    throw new Exception("Error creating window surface");
+                    var beRenderTarget = new GRBackendRenderTarget(w, h, 0, 0, fbi);
+
+                    // Recreate the window surface
+                    Surface = SKSurface.Create(SkiaCtx, beRenderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888, null, null);
+
+
+                    if (Surface == null)
+                    {
+                        throw new Exception("Error creating window surface");
+                    }
                 }
+                old?.Dispose();
             }
         }
 
